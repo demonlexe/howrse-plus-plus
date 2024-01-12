@@ -1,26 +1,22 @@
-import { useState } from "react"
+import PopupSettings from "~components/PopupSettings"
+import { getCurrentYear } from "~utils/scripts/gen_functs"
 
 function IndexPopup() {
-  const [data, setData] = useState("")
-
+  const manifestData = chrome.runtime.getManifest()
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
-        padding: 16
+        padding: "16px",
+        gap: "16px",
+        width: "400px"
       }}>
-      <h2>
-        Welcome to your{" "}
-        <a href="https://www.plasmo.com" target="_blank">
-          Plasmo
-        </a>{" "}
-        Extension!
-      </h2>
-      <input onChange={(e) => setData(e.target.value)} value={data} />
-      <a href="https://docs.plasmo.com" target="_blank">
-        View Docs
-      </a>
+      <PopupSettings />
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div>{`HowrseAdvisor ${getCurrentYear()}`}</div>
+        <div>v{manifestData.version}</div>
+      </div>
     </div>
   )
 }

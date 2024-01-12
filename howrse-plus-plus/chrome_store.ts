@@ -1,14 +1,14 @@
 /* eslint-disable no-console */
 import { Storage } from "@plasmohq/storage"
 
-import { type Preset } from "~settingsObtainer"
+import { type MiscData, type Preset } from "~settingsObtainer"
 
 const storage = new Storage()
 const localStorage = new Storage({
   area: "local"
 })
 
-type Combined = Preset
+type Combined = Preset & MiscData
 
 export function getData<Key extends keyof Combined, Value = Combined[Key]>(
   key: Key,
