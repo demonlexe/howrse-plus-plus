@@ -1,32 +1,49 @@
 {
   "name": "howrse-plus-plus",
-  "displayName": "Howrse plus plus",
+  "displayName": "Howrse++",
   "version": "0.0.1",
   "description": "\bAdds accessibii\blity features to Howrse.",
   "author": "demonlexe",
-  "packageManager": "yarn@1.22.19",
+  "packageManager": "npm@9.5.1",
   "scripts": {
     "dev": "plasmo dev",
-    "build": "plasmo build",
-    "package": "plasmo package"
+    "build": "plasmo build --zip",
+    "package": "plasmo package",
+    "lint-utils": "eslint utils --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint-tabs": "eslint tabs --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint-contents": "eslint contents --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint-components": "eslint components --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "plasmo": "0.77.5",
-    "react": "18.2.0",
+    "@canvasjs/react-charts": "^1.0.0",
+    "@parcel/watcher": "^2.2.0",
+    "@plasmohq/messaging": "^0.5.0",
+    "@plasmohq/storage": "^1.9.0",
+    "bootstrap": "^5.3.0",
+    "dom-parser": "^0.1.6",
+    "eslint": "^8.48.0",
+    "jquery": "^3.7.0",
+    "lightningcss": "^1.21.5",
+    "plasmo": "0.83.0",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.8.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
+    "@plasmohq/prettier-plugin-sort-imports": "3.6.4",
     "@types/chrome": "0.0.237",
+    "@types/dom-parser": "^0.1.4",
+    "@types/jquery": "^3.5.16",
     "@types/node": "20.2.4",
     "@types/react": "18.2.7",
     "@types/react-dom": "18.2.4",
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.1",
+    "eslint-plugin-unicorn": "^47.0.0",
     "prettier": "2.8.8",
-    "typescript": "5.0.4",
-    "@plasmohq/prettier-plugin-sort-imports": "4.0.1"
-  },
-  "manifest": {
-    "host_permissions": [
-      "https://*/*"
-    ]
+    "typescript": "5.0.4"
   }
 }
