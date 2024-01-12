@@ -10,8 +10,12 @@ import { insertCoatRarity } from "~utils/scripts/pages/coat_section"
 import { chooseSampleName } from "~utils/scripts/pages/new_foal"
 import { addSellButtonToTop } from "~utils/scripts/pages/sell_horse"
 
+window.$ = window.jQuery = require("jquery")
+
 declare global {
   interface Window {
+    $: any
+    jQuery: any
     chevalSexe: any
     enduranceGenetique: any
     vitesseGenetique: any
