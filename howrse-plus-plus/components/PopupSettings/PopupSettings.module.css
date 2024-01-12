@@ -1,0 +1,32 @@
+.justifyContentCenter {
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    padding-top: 0;
+}
+
+.flexRowSpaceBtwn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.infoHoverLbl {
+    width: 1.35rem;
+    height: 1.35rem;
+    background-color: rgb(187, 219, 253);
+    border-radius: 7px;
+    text-align: center;
+    align-items: center;
+    margin-left: 5px;
+    font-size: 13px;
+    justify-self: right;
+}
+
+.inputGroup {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
