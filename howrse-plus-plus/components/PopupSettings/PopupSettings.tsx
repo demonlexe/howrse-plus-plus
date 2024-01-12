@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Form, InputGroup, OverlayTrigger, Tooltip } from "react-bootstrap"
+import { Form, OverlayTrigger, Tooltip } from "react-bootstrap"
 
 import { getData, setData } from "~chrome_store"
 import { type BooleanSettings, booleanSettings } from "~settingsObtainer"
@@ -12,16 +12,18 @@ export default function PopupSettings() {
   >({})
   useEffect(() => {
     const newCurrSettings: Record<keyof BooleanSettings, boolean> = {}
-    Object.keys(booleanSettings).map((key) => {
-      getData(key)
-        .then((dat) => {
-          newCurrSettings[key] = dat
+
+    const allKeys = Object.keys(booleanSettings)
+    Promise.all(allKeys.map((key) => getData(key)))
+      .then((res) => {
+        res.map((val, index) => {
+          newCurrSettings[allKeys[index]] = val
         })
-        .catch((err) => {
-          console.error(`[ERR] ${err} getting data: `, key)
-        })
-    })
-    setCurrentSettings(newCurrSettings)
+        setCurrentSettings(newCurrSettings)
+      })
+      .catch((err) => {
+        console.error(`[ERR] ${err} getting Setting data.`)
+      })
   }, [])
   return (
     <Form>
@@ -34,6 +36,9 @@ export default function PopupSettings() {
             <Form.Check
               checked={currentSettings[settingKey] ?? false}
               onChange={async (e) => {
+                setCurrentSettings((prevSettings) => {
+                  return { ...prevSettings, [settingKey]: e.target.checked }
+                })
                 await setData(settingKey, e.target.checked)
               }}
               type="switch"
