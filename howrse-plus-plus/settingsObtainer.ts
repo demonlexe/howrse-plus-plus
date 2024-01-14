@@ -35,8 +35,8 @@ export type MiscData = {
 }
 
 export const settingsDefaults: Record<keyof BooleanSettings, boolean> = {
-  horseNameIconsEnabled: false,
-  extraHorseButtonsEnabled: false,
-  useCustomHorseName: false,
-  newFoalSuggestionsEnabled: false
+  horseNameIconsEnabled: true,
+  extraHorseButtonsEnabled: true,
+  useCustomHorseName: true,
+  newFoalSuggestionsEnabled: true
 }
