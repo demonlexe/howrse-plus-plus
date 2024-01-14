@@ -30,3 +30,9 @@
     margin-top: 15px;
     margin-bottom: 15px;
 }
+
+.settingsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
