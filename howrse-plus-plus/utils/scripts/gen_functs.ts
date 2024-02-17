@@ -3,7 +3,7 @@
 import { Translate } from "utils/scripts/scrapeTranslations"
 
 import { getData, setData } from "~chrome_store"
-import type { SpecialtyContext } from "~settingsObtainer"
+import { type SpecialtyContext, getSetting } from "~settingsObtainer"
 import { getCoatRarity } from "~utils/scripts/pages/coat_section"
 
 export const competitions = {
@@ -1124,7 +1124,7 @@ export async function isOuranosGaia(
 }
 
 export async function displayItemsAtTop() {
-  const horseNameIconsEnabled = await getData("horseNameIconsEnabled")
+  const horseNameIconsEnabled = await getSetting("horseNameIconsEnabled")
   if (!horseNameIconsEnabled) {
     return
   }
@@ -1281,7 +1281,7 @@ async function addEditNameOptionButtons() {
 
 export async function addQuickEditBtnToTop() {
   const [extraHorseButtonsEnabled] = await Promise.all([
-    getData("extraHorseButtonsEnabled")
+    getSetting("extraHorseButtonsEnabled")
   ])
   if (!extraHorseButtonsEnabled || $("#ha-edit-horse-button").length > 0) {
     return

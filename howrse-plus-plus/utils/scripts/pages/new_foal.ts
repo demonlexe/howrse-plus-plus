@@ -1,11 +1,11 @@
 import { waitForElement } from "utils/scripts/gen_functs"
 import { Translate } from "utils/scripts/scrapeTranslations"
 
-import { getData } from "~chrome_store"
+import { getSetting } from "~settingsObtainer"
 
 export async function chooseSampleName() {
   const [useCustomHorseName] = await Promise.all([
-    getData("useCustomHorseName")
+    getSetting("useCustomHorseName")
   ])
 
   waitForElement("#page-contents").then((val) => {
@@ -51,7 +51,9 @@ export async function chooseSampleName() {
 }
 
 export async function chooseBreedingFarm(parent) {
-  const newFoalSuggestionsEnabled = await getData("newFoalSuggestionsEnabled")
+  const newFoalSuggestionsEnabled = await getSetting(
+    "newFoalSuggestionsEnabled"
+  )
   if (!newFoalSuggestionsEnabled) {
     return
   }

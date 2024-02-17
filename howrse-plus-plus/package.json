@@ -1,7 +1,7 @@
 {
   "name": "howrse-plus-plus",
   "displayName": "Howrse++",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "\bAdds accessibii\blity features to Howrse.",
   "author": "demonlexe",
   "packageManager": "npm@9.5.1",

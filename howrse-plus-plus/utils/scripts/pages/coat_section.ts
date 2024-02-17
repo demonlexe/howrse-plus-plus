@@ -7,7 +7,7 @@ import {
 import { Translate } from "utils/scripts/scrapeTranslations"
 
 import { getData, setData } from "~chrome_store"
-import type { CoatRarityCache } from "~settingsObtainer"
+import { type CoatRarityCache, getSetting } from "~settingsObtainer"
 
 export async function getCoatRarity() {
   const charDiv = await waitForElement("#characteristics-body-content")
@@ -25,7 +25,7 @@ export async function getCoatRarity() {
 }
 
 export async function insertCoatRarity() {
-  const isDisplayItemsAtTopEnabled = await getData("horseNameIconsEnabled")
+  const isDisplayItemsAtTopEnabled = await getSetting("horseNameIconsEnabled")
   if (!isDisplayItemsAtTopEnabled) {
     return
   }

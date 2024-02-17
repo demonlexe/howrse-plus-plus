@@ -40,3 +40,12 @@ export const settingsDefaults: Record<keyof BooleanSettings, boolean> = {
   useCustomHorseName: true,
   newFoalSuggestionsEnabled: true
 }
+
+export async function getSetting(key: keyof BooleanSettings, mode?: string) {
+  const dat = getData(key, mode)
+  if (dat == null || dat == undefined) {
+    return settingsDefaults[key]
+  } else {
+    return dat
+  }
+}
