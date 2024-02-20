@@ -674,16 +674,6 @@ export function getHorseCompetitionSpecialty(
   return null
 }
 
-export function getHorseActivityMaxHrs(costPerHalfHr) {
-  const hrCst = costPerHalfHr ? costPerHalfHr * 2 : 16.2
-  const horseEnergy = getSpendableEnergy()
-  // console.log("horseEnergy = ", horseEnergy)
-  const x = (horseEnergy / hrCst) * 10
-  const y = Math.floor(x / 5) * 5
-  const walkHrs = y / 10
-  return walkHrs
-}
-
 export function getHorseAge(page) {
   const pElement = page
     .find('#characteristics-body-content strong:contains("Age:")')
@@ -734,31 +724,6 @@ export function rename_legacy_HorseGenetics(geneticsTable) {
   return { ...newTable, total: Total }
 }
 
-export function getCompetitionWinnabilityScore(competitionKey, horseSkills) {
-  // Array of skills should be in the order of: st, sp, dr, ga, tr, ju
-  const competition = competitions[competitionKey]
-
-  let score = 0
-  if (competition) {
-    competition.forEach((skill, index) => {
-      if (index === 0) {
-        score += horseSkills[skill] * 0.45
-      } else if (index === 1) {
-        score += horseSkills[skill] * 0.3
-      } else if (index === 2) {
-        score += horseSkills[skill] * 0.2
-      }
-    })
-  } else {
-    score += horseSkills[0] * 0.45
-
-    score += horseSkills[1] * 0.3
-
-    score += horseSkills[2] * 0.2
-  }
-  return Math.ceil(score)
-}
-
 export function getQueryVariable(query, variable) {
   const vars = query.split("&")
   for (const var_ of vars) {
@@ -793,49 +758,6 @@ export function checkIfCacheExpired(cacheStruct) {
     }
   }
   return true
-}
-
-export async function fetchCompInfoFromHorseID(
-  horseId: string,
-  compType: string,
-  cachedData
-) {
-  if (!horseId) {
-    return { score: 0, ownedBySelf: false }
-  }
-  const id = parseInt(horseId)
-  const expiredCache = checkIfCacheExpired(cachedData[id])
-  // console.log("Returned from checkIfCacheExpired, ans is ", expiredCache, " for id ", id, " and compType ", compType, " and cachedData[id] is ", cachedData[id], " and cachedData[id].t is ", cachedData[id] ? cachedData[id].t : "undefined")
-  if (!expiredCache) {
-    // console.log("Cache not expired, using previous score for ", cachedData[id])
-    return { score: cachedData[id].s, ownedBySelf: cachedData[id].o }
-  }
-  // Use Cached value if less than 3 minutes between last fetch!
-
-  const inputHref = "elevage/chevaux/cheval?id=" + id
-  const response = await fetch(inputHref)
-  if (response) {
-    const text = await response.text()
-    const textParsedAsJQ = await $(text)
-    // console.log("Response from fetch is ", text)
-    const horseSkills = getHorseSkills(textParsedAsJQ)
-    const score = getCompetitionWinnabilityScore(compType, horseSkills)
-    const isWanderingHorse = Boolean(
-      response.url?.match(/nomade?qName/)?.length
-    )
-    const isInHeaven = Boolean(
-      textParsedAsJQ.find("h1:contains('is now in Heaven')").length
-    )
-    const horseOwnedBySelf =
-      textParsedAsJQ?.length > 0 &&
-      textParsedAsJQ.find(
-        "a[href*='/elevage/fiche/proprie']:contains('History of Owners')"
-      ).length === 0 &&
-      !isWanderingHorse &&
-      !isInHeaven
-    return { score: score, ownedBySelf: horseOwnedBySelf }
-  }
-  return { score: 0, ownedBySelf: false }
 }
 
 export function getHorseGenetics() {
@@ -876,109 +798,6 @@ export function getHorseBLUP(page) {
   return blup.length > 0
     ? parseFloat(blup.text()?.replace(/[^\d.-]+/g, "") || "-100")
     : -100
-}
-
-export async function cacheStructIsValid(prevStruct) {
-  if (!prevStruct) {
-    return false
-  }
-  const cachedTime = prevStruct.t
-  const cachedScore = prevStruct.s
-  if (!cachedTime || !cachedScore) {
-    return false
-  }
-  return true
-}
-
-export async function getCachedCompHorses(compType) {
-  const dataKey = "hrefs_cache_" + compType
-  const prevData = await getData(dataKey as any, "local")
-  if (!prevData) {
-    return {}
-  }
-  if (Array.isArray(prevData)) {
-    return {}
-  }
-
-  const parseAttempt =
-    typeof prevData === "object" ? prevData : JSON.parse(prevData as any)
-  const length = Object.keys(parseAttempt).length
-  if (length > 500) {
-    return {}
-  } else {
-    // Parse the data
-    return parseAttempt
-  }
-}
-
-export async function saveCachedCompHorses(compType, hrefs) {
-  const dataKey = "hrefs_cache_" + compType
-  if (Array.isArray(hrefs)) {
-    hrefs = {}
-  }
-  let finalHash
-  if (typeof hrefs === "object") {
-    finalHash = hrefs
-  } else {
-    finalHash = JSON.stringify(hrefs)
-  }
-  await setData(dataKey as any, finalHash, "local")
-  return 1
-}
-
-export function shouldDoMission(
-  missionButton: JQuery<HTMLElement>,
-  energy?: string
-) {
-  const currentEnergy = getSpendableEnergy(energy && Number(energy))
-  const tooltip = $(missionButton).data("tooltip")
-  const hasHeel = checkIfHasHeel()
-  if (tooltip) {
-    const capturedGroups =
-      /Energy: <strong dir="ltr">-([.0-9]*)<\/strong>/gi.exec(tooltip)
-    // console.log("Group captured", capturedGroups)
-    const missionCost =
-      capturedGroups && Number(capturedGroups[capturedGroups.length - 1] ?? 0)
-
-    if (!missionCost) {
-      return false
-    }
-
-    // console.log("Result: ", missionCost)
-    const energyAfterMission = currentEnergy - missionCost
-    // console.log("Estimated energy after mission is ", energyAfterMission)
-    const timeAfterMission = get_HorseTime(document) + 2 // all missions take 2 hrs
-    // console.log("Estimated time after mission is ", timeAfterMission)
-    if (!hasHeel && (energyAfterMission < 0 || timeAfterMission >= 22)) {
-      return false
-    } else if (hasHeel && timeAfterMission >= 24 && !checkIfGroomed(document)) {
-      // if not have time to groom
-      return false
-    } else {
-      return true
-    }
-  }
-  return false
-}
-
-export function waitForElementOtherWindow(otherDoc, selector) {
-  return new Promise((resolve) => {
-    if (otherDoc.querySelector(selector)) {
-      return resolve(otherDoc.querySelector(selector))
-    }
-
-    const observer = new MutationObserver(() => {
-      if (otherDoc.querySelector(selector)) {
-        resolve(otherDoc.querySelector(selector))
-        observer.disconnect()
-      }
-    })
-
-    observer.observe(otherDoc.body, {
-      childList: true,
-      subtree: true
-    })
-  })
 }
 
 export function insertImgIntoHorseName(newImg) {
@@ -1318,41 +1137,6 @@ export function findSliderValue(parent, key) {
   }
 }
 
-export function validate_input_selection(
-  value,
-  intendedHours
-): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (intendedHours < 0) {
-      resolve(false) // did nothing
-    } // Avoid infinite loop
-    if (!value) {
-      resolve(false) // did nothing
-    }
-    const sliderVal = findSliderValue(
-      value,
-      'li[data-number="' + intendedHours + '"]'
-    )
-    if (sliderVal) {
-      if ($(sliderVal).hasClass("disabled")) {
-        resolve(validate_input_selection(value, intendedHours - 1))
-        // console.log("Disabled...")
-      } else {
-        // console.log("Valid, clicking.")
-        $(sliderVal).on("click", () => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
-        sliderVal.click()
-      }
-    } else {
-      // console.log("Not found, trying again.")
-      resolve(validate_input_selection(value, intendedHours - 1))
-    }
-  })
-}
-
 export async function is_vip() {
   const head = await waitForElement(`#header-hud a[href="/jeu/"]`)
   if (head.innerHTML.includes("/logo/vip/howrse-special_v1523004978.png")) {
@@ -1429,28 +1213,6 @@ export function getHorseIdFromReturnLink(DOM) {
   return undefined
 }
 
-export async function legacy_scrapeHorseTypeFromIcon() {
-  const tableZero = await waitForElement("#table-0")
-  const wandererIcon = $(tableZero)
-    ?.find("thead")
-    ?.find("img[src*='bestiaire-grec_v1597159752.png']")
-  const divineIcon = $(tableZero)
-    ?.find("thead")
-    ?.find("img[src*='soleil-divin_v1417164050.png']")
-  const chimeraIcon = $(tableZero)
-    ?.find("thead")
-    ?.find("img[src*='patte-chimerique_v1523893010.png']")
-  if (wandererIcon && wandererIcon.length > 0) {
-    return "wanderer"
-  } else if (divineIcon && divineIcon.length > 0) {
-    return "divine"
-  } else if (chimeraIcon && chimeraIcon.length > 0) {
-    return "chimera"
-  } else {
-    return "normal"
-  }
-}
-
 export async function getHorseIdFromHorsePage() {
   // First, try
   const horseName = await waitForElement("h1.horse-name")
@@ -1465,56 +1227,6 @@ export async function getHorseIdFromHorsePage() {
   }
 }
 
-export function isAuctionListing() {
-  if (window.location.href.match(/type=enchere/gi)) {
-    return true
-  }
-  return false
-}
-export function isAllAuctionPage() {
-  const auctionTab = $("#tab-0.selected")
-  if (
-    window.location.href.match(/type=enchere/gi) ||
-    (auctionTab.length > 0 &&
-      auctionTab.find("a[href*='type=enchere'").length > 0)
-  ) {
-    return true
-  }
-  return false
-}
-
-export function isOnlyMySales(optDom?: Document) {
-  const checkbox = optDom ? $(optDom).find("#mesVentes") : $("#mesVentes")
-  if (
-    $(checkbox).length > 0 &&
-    $(checkbox).attr("checked")?.toString()?.match("checked")
-  ) {
-    return true
-  }
-  return false
-}
-
-export function isTeamOrReservedSales() {
-  const reservedTab = $("#tab-2.selected")
-  const teamTab = $("#tab-3.selected")
-  if (
-    window.location.href.match(/type=prive/gi) ||
-    (reservedTab.length > 0 &&
-      reservedTab.find("a[href*='type=prive'").length > 0)
-  ) {
-    return true
-  } else if (
-    window.location.href.match(/type=equipe/gi) ||
-    (teamTab.length > 0 && teamTab.find("a[href*='type=equipe'").length > 0)
-  ) {
-    return true
-  }
-  return false
-}
-export function isAutomatedSales(optDom?: Document) {
-  const tab = optDom ? $(optDom).find("#achatAuto") : $("#achatAuto")
-  return tab.length > 0
-}
 // try not to use this directly
 export function getHorseIdFromUrl(url) {
   const attempt1 = url.match(/id=([^&]*)/)
@@ -1524,19 +1236,6 @@ export function getHorseIdFromUrl(url) {
 
 export function getCurrentHost() {
   return window.location.hostname || window.location.host
-}
-
-// From howrse website.
-export function toggleBlocRecherche() {
-  return (
-    false === $("#blocRecherche").is(":visible") &&
-      ($("#horseFilter").slideUp(),
-      $("#blocRecherche").slideDown(),
-      $("select[name=horseFilterFiltre]").attr("disabled", "disabled"),
-      $("input[name=horseSearchNoFilter]").val("1"),
-      $("input[name=horseSearchSearch]").val("1")),
-    !1
-  )
 }
 
 export function checkBoolData(
@@ -1550,36 +1249,4 @@ export function checkBoolData(
 export function getCurrentYear() {
   const currentYear = new Date().getFullYear()
   return currentYear || 2023
-}
-
-export function roundSkillsAndGeneticsForSearch(legacyStats: {
-  gp: {
-    total: number
-  }
-  skills: {
-    st: number
-    sp: number
-    dr: number
-    ga: number
-    tr: number
-    ju: number
-    total: any
-  }
-}) {
-  function roundFactor(n: number, factor: number) {
-    return !n ? null : Math.floor(n / factor) * factor
-  }
-  return {
-    gp: {
-      total: roundFactor(legacyStats?.gp?.total, 5000)
-    },
-    skills: {
-      st: roundFactor(legacyStats?.skills?.st, 500),
-      sp: roundFactor(legacyStats?.skills?.sp, 500),
-      dr: roundFactor(legacyStats?.skills?.dr, 500),
-      ga: roundFactor(legacyStats?.skills?.ga, 500),
-      ju: roundFactor(legacyStats?.skills?.ju, 500),
-      total: roundFactor(legacyStats?.skills?.total, 5000)
-    }
-  }
 }
