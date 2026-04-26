@@ -6,7 +6,6 @@ import {
   displayItemsAtTop,
   distribute_skill_markers
 } from "~utils/scripts/gen_functs"
-import { installChevalPrevNextKeyboardShortcuts } from "~utils/scripts/pages/cheval_keyboard"
 import { insertCoatRarity } from "~utils/scripts/pages/coat_section"
 import { chooseSampleName } from "~utils/scripts/pages/new_foal"
 import { addSellButtonToTop } from "~utils/scripts/pages/sell_horse"
@@ -86,7 +85,6 @@ if (winPath) {
     addQuickEditBtnToTop()
     insertCoatRarity()
     distribute_skill_markers()
-    installChevalPrevNextKeyboardShortcuts()
     console.log("Done inside case ", "elevage/chevaux/cheval")
   } else if (winPath.includes("/chevaux/choisirNoms")) {
     // New foal page
